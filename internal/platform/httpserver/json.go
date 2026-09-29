@@ -6,27 +6,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
-	"strconv"
 	"strings"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/jehincastic/go-boilerplate/internal/platform/validator"
 )
 
 // Envelope is the standard JSON response object.
 type Envelope map[string]any
 
 const maxBytes int64 = 1_048_576
-
-// ReadIDParam reads a positive integer {id} path parameter.
-func ReadIDParam(r *http.Request) (int64, error) {
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if err != nil || id < 1 {
-		return 0, errors.New("invalid id parameter")
-	}
-	return id, nil
-}
 
 // WriteJSON writes data as JSON with the given status and optional headers.
 func WriteJSON(w http.ResponseWriter, status int, data Envelope, headers http.Header) error {
@@ -88,36 +74,4 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 	}
 
 	return nil
-}
-
-// ReadString returns a query value or defaultValue when it is empty.
-func ReadString(qs url.Values, key, defaultValue string) string {
-	value := qs.Get(key)
-	if value == "" {
-		return defaultValue
-	}
-	return value
-}
-
-// ReadCSV splits a comma-separated query value.
-func ReadCSV(qs url.Values, key string, defaultValue []string) []string {
-	csv := qs.Get(key)
-	if csv == "" {
-		return defaultValue
-	}
-	return strings.Split(csv, ",")
-}
-
-// ReadInt reads an integer query value, recording a field error when it is not an integer.
-func ReadInt(qs url.Values, key string, defaultValue int, v *validator.Validator) int {
-	raw := qs.Get(key)
-	if raw == "" {
-		return defaultValue
-	}
-	parsed, err := strconv.Atoi(raw)
-	if err != nil {
-		v.AddError(key, "must be an integer value")
-		return defaultValue
-	}
-	return parsed
 }
