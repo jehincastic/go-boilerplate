@@ -1,0 +1,8 @@
+example
+.git
+bin
+.env
+.envrc
+tmp
+*.md
+!README.md
