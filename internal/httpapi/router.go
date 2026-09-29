@@ -12,6 +12,7 @@ import (
 	"github.com/jehincastic/go-boilerplate/internal/auth"
 	"github.com/jehincastic/go-boilerplate/internal/config"
 	"github.com/jehincastic/go-boilerplate/internal/platform/ratelimit"
+	"github.com/jehincastic/go-boilerplate/internal/restaurent"
 	"github.com/jehincastic/go-boilerplate/internal/user"
 	"github.com/redis/go-redis/v9"
 )
@@ -52,12 +53,20 @@ func NewRouter(deps Deps) http.Handler {
 		MaxAge:           300,
 	}))
 
-	r.Get("/health", healthcheck(deps))
-	r.With(ratelimit.Middleware(deps.RedisClient, ratelimit.Register)).Post("/register", deps.Users.Register)
-	r.With(ratelimit.Middleware(deps.RedisClient, ratelimit.Login)).Post("/login", deps.Users.Login)
-	r.Group(func(authR chi.Router) {
-		authR.Use(auth.Middleware(deps.RedisClient, deps.Config.Auth.JWTSecret, deps.Logger))
-		authR.Get("/me", deps.Users.Me)
+	r.Route("/api", func(apiR chi.Router) {
+		apiR.Get("/health", healthcheck(deps))
+		apiR.Route("/auth", func(authR chi.Router) {
+			authR.With(ratelimit.Middleware(deps.RedisClient, ratelimit.Register)).Post("/register", deps.Users.Register)
+			authR.With(ratelimit.Middleware(deps.RedisClient, ratelimit.Login)).Post("/login", deps.Users.Login)
+		})
+		apiR.Group(func(authR chi.Router) {
+			authR.Use(auth.Middleware(deps.RedisClient, deps.Config.Auth.JWTSecret, deps.Logger))
+			authR.Get("/me", deps.Users.Me)
+		})
+
+		restHandler := restaurent.NewHandler(deps.Logger)
+		apiR.Get("/slots", restHandler.GetAvailableSlots)
+		apiR.Post("/book", restHandler.BookSlot)
 	})
 
 	return r

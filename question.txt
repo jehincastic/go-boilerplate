@@ -1,0 +1,84 @@
+1
+2
+Restaurant Table Reservation System API
+
+Technical specification · API design problem statement
+Problem Statement
+Design and implement a RESTful API for a restaurant table reservation system. The system should allow the
+restaurant to manage tables and customers to make reservations.
+The requirements are split into two sections: Basic and Advanced. Candidates should complete the Basic section
+first, then extend the solution for Advanced.
+
+Basic Basic Section
+
+1. View Available Slots API
+	Display available time slots for a specific date
+	Show which tables are available for booking
+
+Business Rules (Basic)
+	Reservations occur in fixed time slots
+	Tables cannot be booked beyond their capacity
+	The system must prevent double-booking of tables
+
+
+
+Advanced Advanced Section
+1. View Available Slots API (Extended)
+	Extend the Basic View Available Slots API to also return all eligible partially filled tables for a given date and time slot, in addition to fully available tables.
+	A partially filled table is eligible when remaining seats ≥ the customer’s party size for that request
+	Return enough detail for the customer to decide (e.g. table capacity, seats already booked, remaining seats)
+	Example
+		Table capacity: 4
+		Already booked for the slot: 2 guests
+		Customer’s desired party size: 2
+		The customer should see this table in the available slots response, with 2 remaining seats, because their party fits in the remaining capacity
+2. Book Table API
+	Customers book a specific table they selected from the available slots response (table, date, and time slot)
+	Must include customer information, guest count, and any special requests
+	Race conditions
+		Two customers may select the same table and slot at nearly the same time
+		The system must handle concurrent booking attempts safely so that only valid reservations succeed
+	If the table no longer has enough remaining capacity when the booking is submitted, the API should reject the request with an appropriate error (do not allow overbooking)
+
+Business Rules (Advanced)
+	Reservations have cancellation restrictions (document your assumptions)
+
+Restaurant Table Reservation System API 1 / 2
+	Customer details and any special requests must be recorded
+	Partially filled tables and booking must work together with slot availability and capacity rules
+	Evaluation Criteria
+		Requirements are implemented correctly
+		The basic requirements of the project are achieved
+		Efforts have been made to achieve the Advanced requirements
+		Code quality
+		Variable naming
+		Project file and folder structure
+		Adherence to SOLID principles
+		Presence of tests
+		Have you written tests for the functionality built?
+		How well are the tests written?
+		Decisions made in due course of the project
+Choice of language, framework
+Assumptions taken while implementing
+Source control health
+How frequently do you make commits to your code?
+How clear are the commit messages?
+Notes
+There is no single correct solution to this problem. Approach it as you feel is correct.
+Some details are intentionally left open to interpretation — document your assumptions clearly.
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+1.
+2.
+Restaurant Table Reservation System API 2 / 2
